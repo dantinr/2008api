@@ -1,4 +1,5 @@
 const express = require('express')      //引入模块
+const bodyParser = require('body-parser')       //引入 body-parse 用来解析 接收到的post数据
 const mysql = require('mysql')
 const app = express()                   // 调用 express
 const port = 8080                       // 服务运行的端口
@@ -12,70 +13,50 @@ var connection = mysql.createConnection({
     database : 'api2008'
 });
 
-app.get('/user',function(req,res){
 
-    //接收url传参   如 ?name=zhangsan&age=11
-    let params = req.query
-    console.log(params)
+//设置跨域访问
+app.all('*', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-type",);
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
 
-    let username = params.name
 
-    let sql = `select * from p_users where user_name='${username}'`
-    console.log(sql)
-    // 执行 query
-    connection.query(sql, function (error, results, fields) {
-        //获取查询的结果 results
-        console.log(results)
-        if(results){        // 有数据
-            console.log(results)
-        }else{              //无数据
-            console.log("没有此用户可注册")
-        }
-    });
+app.use(bodyParser.json())
 
-    //向客户端响应数据
-    res.send("欢迎访问用户接口")
+// 登录接口
+app.post('/user/login',function(req,res){
+    console.log(req.body)
+    let user_name = req.body.user_name      //接收的用户名
+    let user_pass = req.body.user_pass      // 接收的密码
+
+    // TODO 查询数据库
+
+    res.send("ok")
 })
 
-app.get('/list',(req,res)=>{
-    //创建连接
-    connection.connect();
+//个人中心
+ap.get("/user/center",function(req,res){
 
-    // 执行 query
-    connection.query('select user_id,user_name,email from p_users limit 10', function (error, results, fields) {
-        //console.log(error)
-        //获取查询的结果 results
-        //console.log(results)
-        res.send(JSON.stringify(results))
-    });
+})
 
-    connection.end();
+//用户列表
+app.get('/user/list',(req,res)=>{
 
 })
 
 app.get('/', (req, res) => {
-
-    const list = [
-        {
-            userid: 1001,
-            name: "zhangsan",
-            age: 11
-        },
-        {
-            userid: 1002,
-            name:"lisi",
-            age:22
-        },
-        {
-            userid: 1003,
-            name: "wangwu",
-            age: 33
-        }
-    ]
-
-    //将数组转为JSON字符串
-    res.send(JSON.stringify(list))
+    res.send()
 })
+
+// 用户注册
+app.post('/user/reg',function(req,res){
+    // 接收post数据
+    const body = req.body
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
