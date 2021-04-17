@@ -26,19 +26,46 @@ app.all('*', (req, res, next) => {
 
 app.use(bodyParser.json())
 
+//
+app.get('/', (req, res) => {
+    res.send()
+})
+
 // 登录接口
-app.post('/user/login',function(req,res){
+app.post('/user1/login',function(req,res){
     console.log(req.body)
     let user_name = req.body.user_name      //接收的用户名
     let user_pass = req.body.user_pass      // 接收的密码
 
     // TODO 查询数据库
+    const sql = `select * from p_users where user_name='${user_name}' and password='${user_pass}'`
+    console.log(sql)
+    connection.query(sql,function(err,result){
+        console.log(result)
 
-    res.send("ok")
+        if(result.length){      // 登录成功 ,将用户id返回
+            let response = {
+                errno: 0,
+                msg: "ok",
+                data: {
+                    userid: result.user_id
+                }
+            }
+            res.send(response)
+        }else{          // 登录失败
+            let response = {
+                errno: 40003,       //自定义错误码
+                msg: "登录失败，用户名或密码错误",
+            }
+            res.send(response)
+        }
+
+    })
+
 })
 
 //个人中心
-ap.get("/user/center",function(req,res){
+app.get("/user/center",function(req,res){
 
 })
 
@@ -47,9 +74,7 @@ app.get('/user/list',(req,res)=>{
 
 })
 
-app.get('/', (req, res) => {
-    res.send()
-})
+
 
 // 用户注册
 app.post('/user/reg',function(req,res){
