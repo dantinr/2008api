@@ -32,10 +32,10 @@ app.get('/', (req, res) => {
 })
 
 // 登录接口
-app.post('/user1/login',function(req,res){
+app.post('/user/login',function(req,res){
     console.log(req.body)
-    let user_name = req.body.user_name      //接收的用户名
-    let user_pass = req.body.user_pass      // 接收的密码
+    let user_name = req.body.name      //接收的用户名
+    let user_pass = req.body.pass      // 接收的密码
 
     // TODO 查询数据库
     const sql = `select * from p_users where user_name='${user_name}' and password='${user_pass}'`
@@ -71,7 +71,10 @@ app.get("/user/center",function(req,res){
 
 //用户列表
 app.get('/user/list',(req,res)=>{
-
+    const sql = "select user_id,user_name,email,mobile from p_users order by user_id desc limit 5"
+    connection.query(sql,function(err,result){
+        res.send(result)
+    })
 })
 
 
@@ -81,6 +84,27 @@ app.post('/user/reg',function(req,res){
     // 接收post数据
     const body = req.body
 })
+
+app.get('/cart/goods',function(req,res){
+    // TODO 查询购物车数据
+    const list = [
+        {"id":101,"goods_id":1234,"goods_name":"IphoneX","price":8888,"num":3,"userid":1234},
+        {"id":102,"goods_id":2345,"goods_name":"Iphone8","price":9999,"num":1,"userid":1234},
+        {"id":103,"goods_id":5432,"goods_name":"Iphone7","price":7777,"num":2,"userid":1234},
+        {"id":104,"goods_id":6789,"goods_name":"Iphone6","price":6666,"num":1,"userid":1234},
+        {"id":105,"goods_id":8765,"goods_name":"Iphone5","price":5555,"num":1,"userid":1234}
+    ]
+
+    res.send({
+        errno: 0,
+        msg: "ok",
+        data: {
+            list: list
+        }
+    })
+})
+
+
 
 
 app.listen(port, () => {
