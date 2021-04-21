@@ -28,7 +28,7 @@ app.use(bodyParser.json())
 
 //
 app.get('/', (req, res) => {
-    res.send()
+    res.send("api.2008.com")
 })
 
 // 登录接口
@@ -71,9 +71,46 @@ app.get("/user/center",function(req,res){
 
 //用户列表
 app.get('/user/list',(req,res)=>{
-    const sql = "select user_id,user_name,email,mobile from p_users order by user_id desc limit 5"
+    const sql = "select user_id,user_name,email,mobile from p_users where is_delete=0 order by user_id desc limit 5"
     connection.query(sql,function(err,result){
         res.send(result)
+    })
+})
+
+
+//获取用户信息
+app.get('/user/detail',(req,res)=>{
+    console.log(req.query)
+    let uid = req.query.uid
+    let sql = `select user_id,user_name,email,mobile from p_users where user_id=${uid}`
+
+    connection.query(sql,function(err,result){
+        res.send({
+            errno: 0,
+            msg: 'ok',
+            data:{
+                u:result[0]
+            }
+        })
+    })
+})
+
+//更新用户信息
+app.post('/user/update',(req,res)=>{
+
+
+    let user_id = req.body.user_id
+    let user_name = req.body.user_name
+    let email = req.body.email
+    let mobile = req.body.mobile
+
+    sql = `update p_users set user_name='${user_name}',email='${email}',mobile='${mobile}' where user_id=${user_id}`
+
+    connection.query(sql,function(err,result){
+        res.send({
+            errno: 0,
+            msg: 'ok'
+        })
     })
 })
 
@@ -100,6 +137,28 @@ app.get('/cart/goods',function(req,res){
         msg: "ok",
         data: {
             list: list
+        }
+    })
+})
+
+//删除用户
+app.get('/user/delete',function(req,res){
+    let uid = req.query.uid         //接收参数 uid
+    //let sql = "delete from p_users where user_id="+uid
+    let sql = "update p_users set is_delete=1 where user_id=" + uid
+
+    connection.query(sql,function(err,result){
+        console.log(result)
+        if(result.affectedRows){
+            res.send({
+                errno: 0,
+                msg: "OK"
+            })
+        }else{
+            res.send({
+                errno: 50001,
+                msg: "删除失败"
+            })
         }
     })
 })
